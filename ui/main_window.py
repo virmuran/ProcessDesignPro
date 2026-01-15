@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-主窗口 - 更新使用专用组件
-"""
-
 import sys
 import os
 from pathlib import Path
 from datetime import datetime
+from typing import Dict, Any
 
 from PySide6.QtWidgets import (
     QMainWindow, QApplication, QWidget, QVBoxLayout, QHBoxLayout,
@@ -15,7 +12,8 @@ from PySide6.QtWidgets import (
     QMessageBox, QFileDialog, QInputDialog, QTabWidget, QGroupBox,
     QFormLayout, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox,
     QTableWidget, QTableWidgetItem, QHeaderView, QMenuBar, QMenu,
-    QStatusBar, QSplitter, QTreeWidget, QTreeWidgetItem, QToolBar
+    QStatusBar, QSplitter, QTreeWidget, QTreeWidgetItem, QToolBar,
+    QProgressDialog
 )
 from PySide6.QtCore import Qt, QTimer, Signal, Slot, QSize
 from PySide6.QtGui import QAction, QIcon
@@ -76,7 +74,7 @@ class MainWindow(QMainWindow):
         
         # 设置窗口属性
         self.setWindowTitle("工艺设计程序")
-        self.setGeometry(100, 100, 1400, 900)
+        self.setGeometry(160, 50, 1600, 900)
         
         # 存储UI组件
         self.widgets = {}
@@ -99,6 +97,7 @@ class MainWindow(QMainWindow):
         
         # 创建主布局
         main_layout = QVBoxLayout(central_widget)
+        main_layout.setSpacing(5)
         
         # 创建菜单栏
         self._create_menu_bar()
@@ -113,7 +112,7 @@ class MainWindow(QMainWindow):
         main_splitter = QSplitter(Qt.Horizontal)
         main_layout.addWidget(main_splitter)
         
-        # 左侧：导航面板
+        # 左侧：导航面板（修改后）
         nav_panel = QWidget()
         nav_layout = QVBoxLayout(nav_panel)
         
@@ -133,23 +132,6 @@ class MainWindow(QMainWindow):
         project_group.setLayout(project_layout)
         nav_layout.addWidget(project_group)
         
-        # 模块导航
-        modules_group = QGroupBox("功能模块")
-        modules_layout = QVBoxLayout()
-        
-        self.modules_list = QListWidget()
-        modules = [
-            "物料参数", "MSDS数据", "过程物料", 
-            "工艺路线", "设备清单", "物料平衡",
-            "热量平衡", "水平衡", "报告生成"
-        ]
-        for module in modules:
-            self.modules_list.addItem(module)
-            
-        modules_layout.addWidget(self.modules_list)
-        modules_group.setLayout(modules_layout)
-        nav_layout.addWidget(modules_group)
-        
         # 项目统计
         stats_group = QGroupBox("项目统计")
         stats_layout = QFormLayout()
@@ -167,6 +149,20 @@ class MainWindow(QMainWindow):
         stats_group.setLayout(stats_layout)
         nav_layout.addWidget(stats_group)
         
+        # 操作日志（从底部移到左侧）
+        log_group = QGroupBox("操作日志")
+        log_layout = QVBoxLayout()
+        
+        self.log_text = QTextEdit()
+        self.log_text.setReadOnly(True)
+        # 调整日志控件高度（适配左侧面板）
+        self.log_text.setMinimumHeight(300)
+        log_layout.addWidget(self.log_text)
+        
+        log_group.setLayout(log_layout)
+        nav_layout.addWidget(log_group)
+        
+        # 左侧面板添加伸缩项
         nav_layout.addStretch()
         
         # 添加到分割器
@@ -183,17 +179,7 @@ class MainWindow(QMainWindow):
         # 设置分割器比例
         main_splitter.setSizes([250, 1150])
         
-        # 底部：日志区域
-        log_group = QGroupBox("操作日志")
-        log_layout = QVBoxLayout()
-        
-        self.log_text = QTextEdit()
-        self.log_text.setReadOnly(True)
-        self.log_text.setMaximumHeight(150)
-        log_layout.addWidget(self.log_text)
-        
-        log_group.setLayout(log_layout)
-        main_layout.addWidget(log_group)
+        # 移除原底部的日志区域（因为已经移到左侧）
         
     def _create_menu_bar(self):
         """创建菜单栏"""
@@ -435,8 +421,7 @@ class MainWindow(QMainWindow):
             self.project_manager.project_closed.connect(self._on_project_closed)
             self.project_manager.data_changed.connect(self._on_data_changed)
             
-        # 连接UI信号
-        self.modules_list.currentItemChanged.connect(self._on_module_changed)
+        # 移除原功能模块列表的信号连接（因为已经删除该组件）
         
         # 连接组件信号
         self.material_widget.data_changed.connect(self._on_widget_data_changed)
@@ -784,30 +769,6 @@ class MainWindow(QMainWindow):
         if self.project_manager.is_project_open:
             self.project_manager.save_project(backup=True)
             
-    @Slot()
-    def _on_module_changed(self):
-        """模块选择变化"""
-        current_item = self.modules_list.currentItem()
-        if current_item:
-            module_name = current_item.text()
-            self._log_message(f"切换到模块: {module_name}")
-            
-            # 切换到对应的标签页
-            tab_names = {
-                "物料参数": 0,
-                "MSDS数据": 1,
-                "过程物料": 2,
-                "工艺路线": 3,
-                "设备清单": 4,
-                "物料平衡": 5,
-                "热量平衡": 6,
-                "水平衡": 7,
-                "报告生成": 8
-            }
-            
-            tab_index = tab_names.get(module_name, 0)
-            self.main_tabs.setCurrentIndex(tab_index)
-            
     def _clear_all_data(self):
         """清空所有数据"""
         self.material_widget.set_materials([])
@@ -854,3 +815,10 @@ class MainWindow(QMainWindow):
                 event.ignore()
         else:
             event.accept()
+
+# 程序入口
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())

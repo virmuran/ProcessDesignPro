@@ -251,7 +251,7 @@ class EquipmentWidget(QWidget):
         remark_layout = QVBoxLayout()
         
         self.remark_input = QTextEdit()
-        self.remark_input.setMaximumHeight(100)
+        self.remark_input.setMinimumHeight(50)
         self.remark_input.setPlaceholderText("其他备注信息...")
         
         remark_layout.addWidget(self.remark_input)

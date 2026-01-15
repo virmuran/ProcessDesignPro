@@ -48,19 +48,6 @@ class ProjectManager(QObject):
     
     def create_project(self, name: str, path: str, description: str = "", 
                       author: str = "", company: str = "") -> Tuple[bool, str]:
-        """
-        创建新项目
-        
-        Args:
-            name: 项目名称
-            path: 项目保存路径
-            description: 项目描述
-            author: 作者
-            company: 公司
-            
-        Returns:
-            (成功状态, 消息)
-        """
         try:
             # 验证项目名称
             if not name or not name.strip():
@@ -146,15 +133,6 @@ class ProjectManager(QObject):
             self.data_sync.calculation_completed.connect(self._on_calculation_completed)
             
     def open_project(self, project_path: str) -> Tuple[bool, str]:
-        """
-        打开现有项目
-        
-        Args:
-            project_path: 项目路径或项目配置文件路径
-            
-        Returns:
-            (成功状态, 消息)
-        """
         try:
             # 检查路径类型
             if project_path.endswith('.json'):
@@ -215,15 +193,6 @@ class ProjectManager(QObject):
             return False, error_msg
             
     def save_project(self, backup: bool = True) -> Tuple[bool, str]:
-        """
-        保存当前项目
-        
-        Args:
-            backup: 是否创建备份
-            
-        Returns:
-            (成功状态, 消息)
-        """
         if not self.current_project_path or not self.db_manager:
             return False, "没有打开的项目"
             
@@ -286,15 +255,6 @@ class ProjectManager(QObject):
             return False
             
     def delete_project(self, project_path: str) -> Tuple[bool, str]:
-        """
-        删除项目
-        
-        Args:
-            project_path: 项目路径
-            
-        Returns:
-            (成功状态, 消息)
-        """
         try:
             # 安全检查
             if not os.path.exists(project_path):
@@ -367,16 +327,6 @@ class ProjectManager(QObject):
             return False, f"计算失败: {str(e)}"
             
     def get_data(self, module: str, data_id: str = None):
-        """
-        获取数据
-        
-        Args:
-            module: 模块名
-            data_id: 数据ID (为空时获取所有数据)
-            
-        Returns:
-            数据对象或列表
-        """
         if not self.db_manager:
             return None
             
@@ -408,16 +358,6 @@ class ProjectManager(QObject):
             return None
             
     def update_data(self, module: str, data: Any) -> Tuple[bool, str]:
-        """
-        更新数据
-        
-        Args:
-            module: 模块名
-            data: 数据对象
-            
-        Returns:
-            (成功状态, 消息)
-        """
         if not self.db_manager:
             return False, "数据库未连接"
             
@@ -445,16 +385,6 @@ class ProjectManager(QObject):
             return False, error_msg
             
     def delete_data(self, module: str, data_id: str) -> Tuple[bool, str]:
-        """
-        删除数据
-        
-        Args:
-            module: 模块名
-            data_id: 数据ID
-            
-        Returns:
-            (成功状态, 消息)
-        """
         if not self.db_manager:
             return False, "数据库未连接"
             
@@ -482,16 +412,6 @@ class ProjectManager(QObject):
     # ========== 项目工具方法 ==========
     
     def export_project(self, export_path: str, format: str = 'json') -> Tuple[bool, str]:
-        """
-        导出项目
-        
-        Args:
-            export_path: 导出路径
-            format: 导出格式 (json, excel)
-            
-        Returns:
-            (成功状态, 消息)
-        """
         if not self.db_manager:
             return False, "数据库未连接"
             
@@ -511,16 +431,6 @@ class ProjectManager(QObject):
             return False, error_msg
             
     def import_data(self, import_path: str, module: str = None) -> Tuple[bool, str]:
-        """
-        导入数据
-        
-        Args:
-            import_path: 导入文件路径
-            module: 目标模块 (为空时导入整个项目)
-            
-        Returns:
-            (成功状态, 消息)
-        """
         if not self.db_manager:
             return False, "数据库未连接"
             
@@ -543,15 +453,6 @@ class ProjectManager(QObject):
             return False, error_msg
             
     def get_project_list(self, search_path: str = None) -> List[Dict[str, Any]]:
-        """
-        获取项目列表
-        
-        Args:
-            search_path: 搜索路径 (为空时使用默认路径)
-            
-        Returns:
-            项目信息列表
-        """
         if not search_path:
             search_path = DB_CONFIG['default_path']
             

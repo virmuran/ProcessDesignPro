@@ -104,7 +104,7 @@ class ProcessFlowWidget(QWidget):
         self.unit_type_input = QComboBox()
         self.unit_type_input.addItems(unit_types)
         self.unit_desc_input = QTextEdit()
-        self.unit_desc_input.setMaximumHeight(60)
+        self.unit_desc_input.setMinimumHeight(60)
         
         property_layout.addRow("设备ID:", self.unit_id_input)
         property_layout.addRow("设备名称:", self.unit_name_input)

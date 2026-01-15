@@ -138,7 +138,7 @@ class WaterBalanceWidget(QWidget):
         self.current_water_footprint_label = QLabel("0 m³/t")
         self.potential_saving_label = QLabel("0%")
         self.saving_measures_text = QTextEdit()
-        self.saving_measures_text.setMaximumHeight(80)
+        self.saving_measures_text.setMinimumHeight(80)
         self.saving_measures_text.setPlaceholderText("节水措施建议...")
         
         saving_layout.addRow("当前水足迹:", self.current_water_footprint_label)

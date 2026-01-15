@@ -191,7 +191,7 @@ class HeatBalanceWidget(QWidget):
         
         self.suggestion_text = QTextEdit()
         self.suggestion_text.setReadOnly(True)
-        self.suggestion_text.setMaximumHeight(150)
+        self.suggestion_text.setMinimumHeight(100)
         self.suggestion_text.setText("热量平衡计算完成后，将显示节能建议...")
         
         suggestion_layout.addWidget(self.suggestion_text)

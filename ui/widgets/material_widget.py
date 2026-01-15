@@ -144,7 +144,7 @@ class MaterialWidget(QWidget):
         properties_layout = QVBoxLayout()
         self.properties_input = QTextEdit()
         self.properties_input.setPlaceholderText("JSON格式的其他属性...")
-        self.properties_input.setMaximumHeight(100)
+        self.properties_input.setMinimumHeight(80)
         properties_layout.addWidget(self.properties_input)
         properties_group.setLayout(properties_layout)
         

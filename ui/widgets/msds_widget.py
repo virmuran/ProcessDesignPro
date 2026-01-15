@@ -164,7 +164,7 @@ class MSDSWidget(QWidget):
         
         self.precaution_statements_input = QTextEdit()
         self.precaution_statements_input.setPlaceholderText("输入防范说明...")
-        self.precaution_statements_input.setMaximumHeight(100)
+        self.precaution_statements_input.setMinimumHeight(100)
         
         precaution_layout.addWidget(self.precaution_statements_input)
         precaution_group.setLayout(precaution_layout)
@@ -175,19 +175,19 @@ class MSDSWidget(QWidget):
         first_aid_layout = QFormLayout()
         
         self.inhalation_input = QTextEdit()
-        self.inhalation_input.setMaximumHeight(60)
+        self.inhalation_input.setMinimumHeight(60)
         self.inhalation_input.setPlaceholderText("吸入急救措施")
         
         self.skin_contact_input = QTextEdit()
-        self.skin_contact_input.setMaximumHeight(60)
+        self.skin_contact_input.setMinimumHeight(60)
         self.skin_contact_input.setPlaceholderText("皮肤接触急救措施")
         
         self.eye_contact_input = QTextEdit()
-        self.eye_contact_input.setMaximumHeight(60)
+        self.eye_contact_input.setMinimumHeight(60)
         self.eye_contact_input.setPlaceholderText("眼睛接触急救措施")
         
         self.ingestion_input = QTextEdit()
-        self.ingestion_input.setMaximumHeight(60)
+        self.ingestion_input.setMinimumHeight(60)
         self.ingestion_input.setPlaceholderText("食入急救措施")
         
         first_aid_layout.addRow("吸入:", self.inhalation_input)
@@ -206,11 +206,11 @@ class MSDSWidget(QWidget):
         self.suitable_extinguishers_input.setPlaceholderText("如: 二氧化碳、干粉、砂土")
         
         self.hazardous_combustion_input = QTextEdit()
-        self.hazardous_combustion_input.setMaximumHeight(60)
+        self.hazardous_combustion_input.setMinimumHeight(60)
         self.hazardous_combustion_input.setPlaceholderText("有害燃烧产物")
         
         self.fire_fighting_measures_input = QTextEdit()
-        self.fire_fighting_measures_input.setMaximumHeight(80)
+        self.fire_fighting_measures_input.setMinimumHeight(80)
         self.fire_fighting_measures_input.setPlaceholderText("消防措施")
         
         fire_layout.addRow("适用灭火剂:", self.suitable_extinguishers_input)
@@ -225,7 +225,7 @@ class MSDSWidget(QWidget):
         leak_layout = QVBoxLayout()
         
         self.leak_measures_input = QTextEdit()
-        self.leak_measures_input.setMaximumHeight(100)
+        self.leak_measures_input.setMinimumHeight(100)
         self.leak_measures_input.setPlaceholderText("泄露应急处理措施")
         
         leak_layout.addWidget(self.leak_measures_input)
@@ -237,11 +237,11 @@ class MSDSWidget(QWidget):
         storage_layout = QFormLayout()
         
         self.handling_precautions_input = QTextEdit()
-        self.handling_precautions_input.setMaximumHeight(80)
+        self.handling_precautions_input.setMinimumHeight(80)
         self.handling_precautions_input.setPlaceholderText("操作注意事项")
         
         self.storage_conditions_input = QTextEdit()
-        self.storage_conditions_input.setMaximumHeight(80)
+        self.storage_conditions_input.setMinimumHeight(80)
         self.storage_conditions_input.setPlaceholderText("储存条件")
         
         storage_layout.addRow("操作处置:", self.handling_precautions_input)
@@ -258,11 +258,11 @@ class MSDSWidget(QWidget):
         self.exposure_limits_input.setPlaceholderText("如: TWA 50 ppm")
         
         self.engineering_controls_input = QTextEdit()
-        self.engineering_controls_input.setMaximumHeight(60)
+        self.engineering_controls_input.setMinimumHeight(60)
         self.engineering_controls_input.setPlaceholderText("工程控制")
         
         self.personal_protection_input = QTextEdit()
-        self.personal_protection_input.setMaximumHeight(100)
+        self.personal_protection_input.setMinimumHeight(100)
         self.personal_protection_input.setPlaceholderText("个体防护装备")
         
         protection_layout.addRow("接触限值:", self.exposure_limits_input)
@@ -296,11 +296,11 @@ class MSDSWidget(QWidget):
         self.stability_input.setPlaceholderText("稳定性")
         
         self.avoid_conditions_input = QTextEdit()
-        self.avoid_conditions_input.setMaximumHeight(60)
+        self.avoid_conditions_input.setMinimumHeight(60)
         self.avoid_conditions_input.setPlaceholderText("应避免的条件")
         
         self.incompatible_materials_input = QTextEdit()
-        self.incompatible_materials_input.setMaximumHeight(60)
+        self.incompatible_materials_input.setMinimumHeight(60)
         self.incompatible_materials_input.setPlaceholderText("禁配物")
         
         stability_layout.addRow("稳定性:", self.stability_input)
@@ -315,7 +315,7 @@ class MSDSWidget(QWidget):
         toxicology_layout = QFormLayout()
         
         self.toxicity_input = QTextEdit()
-        self.toxicity_input.setMaximumHeight(80)
+        self.toxicity_input.setMinimumHeight(80)
         self.toxicity_input.setPlaceholderText("急性毒性、慢性毒性等")
         
         self.carcinogenicity_input = QLineEdit()
@@ -332,7 +332,7 @@ class MSDSWidget(QWidget):
         ecology_layout = QFormLayout()
         
         self.ecotoxicity_input = QTextEdit()
-        self.ecotoxicity_input.setMaximumHeight(80)
+        self.ecotoxicity_input.setMinimumHeight(80)
         self.ecotoxicity_input.setPlaceholderText("生态毒性信息")
         
         self.persistence_input = QLineEdit()
@@ -349,7 +349,7 @@ class MSDSWidget(QWidget):
         disposal_layout = QVBoxLayout()
         
         self.disposal_method_input = QTextEdit()
-        self.disposal_method_input.setMaximumHeight(80)
+        self.disposal_method_input.setMinimumHeight(80)
         self.disposal_method_input.setPlaceholderText("废弃处置方法")
         
         disposal_layout.addWidget(self.disposal_method_input)
@@ -377,7 +377,7 @@ class MSDSWidget(QWidget):
         regulatory_layout = QFormLayout()
         
         self.regulatory_info_input = QTextEdit()
-        self.regulatory_info_input.setMaximumHeight(100)
+        self.regulatory_info_input.setMinimumHeight(100)
         self.regulatory_info_input.setPlaceholderText("相关法律法规")
         
         regulatory_layout.addRow("法规信息:", self.regulatory_info_input)
@@ -390,7 +390,7 @@ class MSDSWidget(QWidget):
         other_layout = QVBoxLayout()
         
         self.other_info_input = QTextEdit()
-        self.other_info_input.setMaximumHeight(80)
+        self.other_info_input.setMinimumHeight(80)
         self.other_info_input.setPlaceholderText("其他需要说明的信息")
         
         other_layout.addWidget(self.other_info_input)

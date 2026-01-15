@@ -77,7 +77,7 @@ class FlowWidget(QWidget):
         ])
         
         self.unit_desc_input = QTextEdit()
-        self.unit_desc_input.setMaximumHeight(80)
+        self.unit_desc_input.setMinimumHeight(60)
         self.unit_desc_input.setPlaceholderText("设备描述...")
         
         self.position_x_input = QDoubleSpinBox()
@@ -104,7 +104,7 @@ class FlowWidget(QWidget):
         
         self.connections_input = QTextEdit()
         self.connections_input.setPlaceholderText("JSON格式的连接信息...")
-        self.connections_input.setMaximumHeight(100)
+        self.connections_input.setMinimumHeight(80)
         connection_layout.addWidget(self.connections_input)
         
         connection_group.setLayout(connection_layout)

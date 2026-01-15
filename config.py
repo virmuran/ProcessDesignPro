@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-工艺设计程序配置文件
-"""
-
 import os
 from pathlib import Path
 

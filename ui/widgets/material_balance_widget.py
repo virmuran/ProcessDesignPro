@@ -143,7 +143,7 @@ class MaterialBalanceWidget(QWidget):
         
         self.result_text = QTextEdit()
         self.result_text.setReadOnly(True)
-        self.result_text.setMaximumHeight(200)
+        self.result_text.setMinimumHeight(150)
         
         detail_layout.addWidget(self.result_text)
         detail_result_group.setLayout(detail_layout)
