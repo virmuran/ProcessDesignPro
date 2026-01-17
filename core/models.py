@@ -1,23 +1,42 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, fields
 from typing import Dict, List, Any, Optional, Union, Tuple
 from datetime import datetime
 import json
 
 @dataclass
 class MaterialParameter:
-    """物料参数模型 - 添加计算属性"""
+    """物料参数模型 - 基于硫酸标准扩展"""
     material_id: str
     name: str
     chemical_formula: Optional[str] = None
+    cas_number: Optional[str] = None  # 新增：CAS号
+    
+    # 物性参数
     molar_mass: Optional[float] = None  # g/mol
     density: Optional[float] = None    # kg/m³
     viscosity: Optional[float] = None   # Pa·s
     specific_heat: Optional[float] = None  # J/(kg·K)
     thermal_conductivity: Optional[float] = None  # W/(m·K)
+    
+    # 质量指标（基于硫酸标准GB 29205-2012）
+    sulfuric_acid_content_92: Optional[float] = None  # 92酸含量 %
+    sulfuric_acid_content_98: Optional[float] = None  # 98酸含量 %
+    nitrate_content: Optional[float] = None  # 硝酸盐含量 %
+    chloride_content: Optional[float] = None  # 氯化物含量 %
+    iron_content: Optional[float] = None  # 铁含量 %
+    lead_content: Optional[float] = None  # 铅含量 mg/kg
+    arsenic_content: Optional[float] = None  # 砷含量 mg/kg
+    selenium_content: Optional[float] = None  # 硒含量 mg/kg
+    reducing_substances: bool = True  # 还原性物质检测
+    
+    # 安全信息
     safety_class: Optional[str] = None
     storage_conditions: Optional[str] = None
+    hazard_classification: Optional[str] = None  # 危险分类
+    
+    # 其他属性
     properties: Dict[str, Any] = field(default_factory=dict)
     created_date: str = field(default_factory=lambda: datetime.now().isoformat())
     modified_date: str = field(default_factory=lambda: datetime.now().isoformat())
@@ -30,7 +49,7 @@ class MaterialParameter:
     
     @property
     def heat_capacity(self) -> Optional[float]:
-        """获取热容（J/(mol·K))"""
+        """获取热容（J/(mol·K)）"""
         if self.molar_mass and self.specific_heat:
             return self.specific_heat * self.molar_mass / 1000  # J/(mol·K)
         return None
@@ -40,6 +59,42 @@ class MaterialParameter:
         if self.specific_heat is not None:
             return self.specific_heat * (temperature - reference_temp)
         return None
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """转换为字典"""
+        data = asdict(self)
+        
+        # 处理properties字段为JSON字符串
+        if 'properties' in data:
+            data['properties_json'] = json.dumps(data.pop('properties', {}), ensure_ascii=False)
+        
+        # 处理其他需要JSON序列化的字段
+        data['reducing_substances'] = 1 if self.reducing_substances else 0
+        
+        return data
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'MaterialParameter':
+        """从字典创建实例"""
+        # 处理properties_json字段
+        if 'properties_json' in data:
+            properties_json = data.pop('properties_json', None)
+            if properties_json:
+                data['properties'] = json.loads(properties_json) if properties_json else {}
+        
+        # 处理reducing_substances（SQLite可能存储为整数）
+        if 'reducing_substances' in data:
+            reducing = data['reducing_substances']
+            if isinstance(reducing, int):
+                data['reducing_substances'] = bool(reducing)
+            elif isinstance(reducing, str):
+                data['reducing_substances'] = reducing.lower() in ['true', '1', 'yes']
+        
+        # 过滤掉数据库中可能存在的额外字段（如id）
+        valid_fields = [field.name for field in fields(cls)]
+        filtered_data = {k: v for k, v in data.items() if k in valid_fields}
+        
+        return cls(**filtered_data)
 
 @dataclass
 class MSDSData:
@@ -257,8 +312,24 @@ class ProjectInfo:
     modified_date: str = field(default_factory=lambda: datetime.now().isoformat())
     
     def to_dict(self) -> Dict[str, Any]:
-        """转换为字典"""
-        return asdict(self)
+        """转换为字典（不包含id字段）"""
+        return {
+            'name': self.name,
+            'description': self.description,
+            'version': self.version,
+            'author': self.author,
+            'company': self.company,
+            'created_date': self.created_date,
+            'modified_date': self.modified_date
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'ProjectInfo':
+        """从字典创建实例，过滤掉不必要的字段"""
+        # 过滤掉数据库中的id字段和其他不需要的字段
+        valid_fields = [field.name for field in fields(cls)]
+        filtered_data = {k: v for k, v in data.items() if k in valid_fields}
+        return cls(**filtered_data)
     
 @dataclass
 class HeatBalance:

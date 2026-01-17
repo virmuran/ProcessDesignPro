@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-数据库管理器 - SQLite数据库操作核心
-"""
-
 import sqlite3
 import json
 import os
@@ -70,13 +66,31 @@ class DatabaseManager:
                     material_id TEXT UNIQUE NOT NULL,
                     name TEXT NOT NULL,
                     chemical_formula TEXT,
+                    cas_number TEXT,  -- 新增：CAS号
+                    
+                    -- 物性参数
                     molar_mass REAL,
                     density REAL,
                     viscosity REAL,
                     specific_heat REAL,
                     thermal_conductivity REAL,
+                    
+                    -- 质量指标（基于硫酸标准）
+                    sulfuric_acid_content_92 REAL,  -- 92酸含量 %
+                    sulfuric_acid_content_98 REAL,  -- 98酸含量 %
+                    nitrate_content REAL,           -- 硝酸盐含量 %
+                    chloride_content REAL,          -- 氯化物含量 %
+                    iron_content REAL,              -- 铁含量 %
+                    lead_content REAL,              -- 铅含量 mg/kg
+                    arsenic_content REAL,           -- 砷含量 mg/kg
+                    selenium_content REAL,          -- 硒含量 mg/kg
+                    reducing_substances BOOLEAN,    -- 还原性物质检测
+                    
+                    -- 安全信息
                     safety_class TEXT,
                     storage_conditions TEXT,
+                    hazard_classification TEXT,     -- 危险分类
+                    
                     properties_json TEXT,
                     created_date TEXT,
                     modified_date TEXT
@@ -259,8 +273,14 @@ class DatabaseManager:
             # 首先删除旧的项目信息（只保留一条）
             self.cursor.execute("DELETE FROM project_info")
             
-            # 插入新的项目信息
+            # 插入新的项目信息（不包含id字段）
             data = project_info.to_dict()
+            
+            # 确保日期字段存在
+            if 'created_date' not in data:
+                data['created_date'] = datetime.now().isoformat()
+            data['modified_date'] = datetime.now().isoformat()
+            
             columns = ', '.join(data.keys())
             placeholders = ', '.join(['?' for _ in data])
             values = list(data.values())
@@ -282,7 +302,11 @@ class DatabaseManager:
             row = self.cursor.fetchone()
             
             if row:
-                return ProjectInfo(**dict(row))
+                row_dict = dict(row)
+                # 移除id字段，因为ProjectInfo模型不需要
+                if 'id' in row_dict:
+                    del row_dict['id']
+                return ProjectInfo.from_dict(row_dict)
             return None
             
         except Exception as e:
@@ -295,11 +319,27 @@ class DatabaseManager:
         """添加物料参数"""
         try:
             data = material.to_dict()
-            columns = ', '.join(data.keys())
-            placeholders = ', '.join(['?' for _ in data])
-            values = list(data.values())
             
-            query = f"INSERT INTO material_params ({columns}) VALUES ({placeholders})"
+            # 确保日期字段存在
+            if 'created_date' not in data:
+                data['created_date'] = datetime.now().isoformat()
+            if 'modified_date' not in data:
+                data['modified_date'] = datetime.now().isoformat()
+            
+            # 构建SQL语句
+            columns = []
+            placeholders = []
+            values = []
+            
+            for key, value in data.items():
+                columns.append(key)
+                placeholders.append('?')
+                values.append(value)
+            
+            columns_str = ', '.join(columns)
+            placeholders_str = ', '.join(placeholders)
+            
+            query = f"INSERT INTO material_params ({columns_str}) VALUES ({placeholders_str})"
             self.cursor.execute(query, values)
             self.connection.commit()
             return True
@@ -316,9 +356,16 @@ class DatabaseManager:
             data['modified_date'] = datetime.now().isoformat()
             
             # 构建SET子句
-            set_clause = ', '.join([f"{k}=?" for k in data.keys() if k != 'material_id'])
-            values = [v for k, v in data.items() if k != 'material_id']
+            set_items = []
+            values = []
+            
+            for key, value in data.items():
+                if key != 'material_id':
+                    set_items.append(f"{key}=?")
+                    values.append(value)
+            
             values.append(material.material_id)  # WHERE子句的参数
+            set_clause = ', '.join(set_items)
             
             query = f"UPDATE material_params SET {set_clause} WHERE material_id=?"
             self.cursor.execute(query, values)

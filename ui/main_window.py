@@ -420,13 +420,9 @@ class MainWindow(QMainWindow):
             self.project_manager.project_saved.connect(self._on_project_saved)
             self.project_manager.project_closed.connect(self._on_project_closed)
             self.project_manager.data_changed.connect(self._on_data_changed)
-            
-        # 移除原功能模块列表的信号连接（因为已经删除该组件）
         
-        # 连接组件信号
+        # 连接物料组件信号
         self.material_widget.data_changed.connect(self._on_widget_data_changed)
-        self.process_material_widget.data_changed.connect(self._on_widget_data_changed)
-        self.process_flow_widget.data_changed.connect(self._on_widget_data_changed)
         
     def _update_status_bar(self):
         """更新状态栏"""

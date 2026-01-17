@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-项目管理器 - 负责项目的创建、打开、保存和管理
-"""
-
 import os
 import json
 import shutil
@@ -129,8 +125,11 @@ class ProjectManager(QObject):
     def _connect_sync_signals(self):
         """连接数据同步信号"""
         if self.data_sync:
-            self.data_sync.sync_completed.connect(self._on_sync_completed)
-            self.data_sync.calculation_completed.connect(self._on_calculation_completed)
+            try:
+                self.data_sync.sync_completed.connect(self._on_sync_completed)
+                self.data_sync.calculation_completed.connect(self._on_calculation_completed)
+            except RuntimeError:
+                print("连接数据同步信号失败（可能已连接）")
             
     def open_project(self, project_path: str) -> Tuple[bool, str]:
         try:
@@ -155,15 +154,29 @@ class ProjectManager(QObject):
             # 验证数据库文件
             db_path = config_data.get('db_path')
             if not db_path or not os.path.exists(db_path):
-                return False, "项目数据库文件不存在"
-                
+                # 尝试从项目目录中查找数据库文件
+                db_files = [f for f in os.listdir(project_dir) if f.endswith('.db')]
+                if db_files:
+                    db_path = os.path.join(project_dir, db_files[0])
+                else:
+                    return False, "项目数据库文件不存在"
+                    
             # 连接到数据库
             self.db_manager = DatabaseManager(db_path)
             
             # 获取项目信息
             self.project_info = self.db_manager.get_project_info()
             if not self.project_info:
-                return False, "项目信息读取失败"
+                # 如果没有项目信息，从配置文件创建
+                self.project_info = ProjectInfo(
+                    name=config_data.get('name', '未命名项目'),
+                    description=config_data.get('description', ''),
+                    version=config_data.get('app_version', '1.0.0'),
+                    author=config_data.get('author', ''),
+                    company=config_data.get('company', '')
+                )
+                # 保存到数据库
+                self.db_manager.save_project_info(self.project_info)
                 
             # 更新修改时间
             config_data['modified_date'] = datetime.now().isoformat()
@@ -498,16 +511,32 @@ class ProjectManager(QObject):
     def _connect_signals(self):
         """连接信号"""
         if self.data_sync:
-            self.data_sync.sync_completed.connect(self._on_sync_completed)
-            self.data_sync.data_updated.connect(self._on_data_updated)
+            try:
+                # 使用新的连接方法，避免重复连接
+                if not self.data_sync.sync_completed.hasConnection():
+                    self.data_sync.sync_completed.connect(self._on_sync_completed)
+                if not self.data_sync.data_updated.hasConnection():
+                    self.data_sync.data_updated.connect(self._on_data_updated)
+            except Exception as e:
+                print(f"连接信号失败: {e}")
             
     def _disconnect_signals(self):
         """断开信号连接"""
         if self.data_sync:
             try:
+                # 使用安全断开方法
                 self.data_sync.sync_completed.disconnect()
+            except (TypeError, RuntimeError):
+                pass  # 信号未连接是正常情况
+            try:
                 self.data_sync.data_updated.disconnect()
-            except:
+            except (TypeError, RuntimeError):
+                pass  # 信号未连接是正常情况
+                
+            # 断开计算完成信号
+            try:
+                self.data_sync.calculation_completed.disconnect()
+            except (TypeError, RuntimeError):
                 pass
                 
     def _start_auto_save(self):

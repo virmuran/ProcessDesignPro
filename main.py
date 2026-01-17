@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-工艺设计程序 - 主程序入口
-"""
-
 import sys
 import os
 from pathlib import Path
@@ -21,11 +17,9 @@ def main():
     # 创建Qt应用
     app = QApplication(sys.argv)
     
-    # 设置高DPI支持（新方法）
-    if hasattr(Qt, 'AA_EnableHighDpiScaling'):
-        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
-        QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    # 设置高DPI支持（兼容新旧版本）
+    app.setAttribute(Qt.AA_EnableHighDpiScaling)
+    app.setAttribute(Qt.AA_UseHighDpiPixmaps)
     
     # 创建并显示主窗口
     window = MainWindow()
